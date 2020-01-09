@@ -4,7 +4,7 @@
 Summary: Versatile resource statistics tool
 Name: dstat
 Version: 0.7.0
-Release: 3%{?dist}
+Release: 3%{?dist}.1
 License: GPLv2
 Group: System Environment/Base
 URL: http://dag.wieers.com/home-made/dstat/
@@ -82,6 +82,9 @@ cd docs
 %{_datadir}/dstat/*.py*
 
 %changelog
+* Fri Aug 25 2017 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 0.7.0-3.el6_9.1
+- fix the incorrect fix for BZ #989779 (#1443866)
+
 * Mon Sep 19 2016 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 0.7.0-3
 - fix the error message for '--gpfs-ops --gpfs' options (#989779)
 - fix the invalid syntax when '--mysql5-conn' is used (#766806)
