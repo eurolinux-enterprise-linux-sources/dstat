@@ -1,7 +1,7 @@
 Summary: Versatile resource statistics tool
 Name: dstat
 Version: 0.7.2
-Release: 11%{?dist}
+Release: 12%{?dist}
 License: GPLv2
 Group: System Environment/Base
 URL: http://dag.wieers.com/home-made/dstat/
@@ -81,6 +81,9 @@ cd docs
 %{_datadir}/dstat/*.py*
 
 %changelog
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 0.7.2-12
+- Mass rebuild 2013-12-27
+
 * Mon Jul 22 2013 Jiri Popelka <jpopelka@redhat.com> - 0.7.2-11
 - change shebang to absolute path (#987015)
 
