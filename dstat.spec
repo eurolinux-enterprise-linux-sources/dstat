@@ -4,13 +4,25 @@
 Summary: Versatile resource statistics tool
 Name: dstat
 Version: 0.7.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv2
 Group: System Environment/Base
 URL: http://dag.wieers.com/home-made/dstat/
 
 Source: http://dag.wieers.com/home-made/dstat/dstat-%{version}.tar.bz2
+
 Patch0: dstat-0.6.8-dbus.patch
+
+# This patch enables to specify disks with path to device file
+# (or with symbolic link to the device file)
+# For example:
+# dstat -d -D /dev/vda2
+# dstat -d -D /dev/disk/by-id/scsi-SATA_Hitachi_HDP7250_GEA534RF3YYMMA-part3
+# dstat -d -D /dev/disk/by-path/pci-0000:00:06.0-virtio-pci-virtio3-part2
+# dstat -d -D /dev/disk/by-uuid/6df45ed6-c4ad-4054-955d-b15102f2c566
+# (BZ#766443)
+Patch1: dstat-0.7.0-disk-path.patch
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root%(%{__id_u} -n)
 
 BuildArch: noarch
@@ -35,6 +47,7 @@ confusion, less mistakes.
 %prep
 %setup -q
 %patch0 -p1 -b .dbus
+%patch1 -p1 -b .disk-path
 
 %build
 # Make sure the docs are in unix format
@@ -65,6 +78,10 @@ cd docs
 %{_datadir}/dstat/*.py*
 
 %changelog
+* Tue Jan 20 2015 Jiri Popelka <jpopelka@redhat.com> - 0.7.0-2
+- enable to specify disks with path to device file or
+  with symbolic link to the device file (#766443)
+
 * Thu Dec 03 2009 Jan Zeleny <jzeleny@redhat.com> - 0.7.0-1
 - rebased to 0.7.0
 
