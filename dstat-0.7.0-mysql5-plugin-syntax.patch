@@ -1,0 +1,25 @@
+From e9761d72bc843f0b077aaaf402647c969f0d2051 Mon Sep 17 00:00:00 2001
+From: "David Kaspar [Dee'Kej]" <dkaspar@redhat.com>
+Date: Mon, 19 Sep 2016 17:31:12 +0200
+Subject: [PATCH] Invalid syntax in plugins/dstat_mysql5_conn.py fixed
+
+---
+ plugins/dstat_mysql5_conn.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plugins/dstat_mysql5_conn.py b/plugins/dstat_mysql5_conn.py
+index 44d7386..74c6c76 100644
+--- a/plugins/dstat_mysql5_conn.py
++++ b/plugins/dstat_mysql5_conn.py
+@@ -36,7 +36,7 @@ class dstat_plugin(dstat):
+             thread = c.fetchone()
+             if thread[0] in self.vars:
+                 self.set2[thread[0]] = float(thread[1])
+-                self.set2['Threads'] = float(thread[1] / float(max[1]) 1.0 * 100)
++                self.set2['Threads'] = float(thread[1]) / float(max[1]) * 100.0
+ 
+             for name in self.vars:
+                 self.val[name] = self.set2[name] * 1.0 / elapsed
+-- 
+2.7.4
+

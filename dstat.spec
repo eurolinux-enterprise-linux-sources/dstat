@@ -4,7 +4,7 @@
 Summary: Versatile resource statistics tool
 Name: dstat
 Version: 0.7.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: GPLv2
 Group: System Environment/Base
 URL: http://dag.wieers.com/home-made/dstat/
@@ -22,6 +22,8 @@ Patch0: dstat-0.6.8-dbus.patch
 # dstat -d -D /dev/disk/by-uuid/6df45ed6-c4ad-4054-955d-b15102f2c566
 # (BZ#766443)
 Patch1: dstat-0.7.0-disk-path.patch
+Patch2: dstat-0.7.0-gpfs-error.patch
+Patch3: dstat-0.7.0-mysql5-plugin-syntax.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root%(%{__id_u} -n)
 
@@ -48,6 +50,8 @@ confusion, less mistakes.
 %setup -q
 %patch0 -p1 -b .dbus
 %patch1 -p1 -b .disk-path
+%patch2 -p1 -b .gpfs-error
+%patch3 -p1 -b .mysql5-plugin-syntax
 
 %build
 # Make sure the docs are in unix format
@@ -78,6 +82,10 @@ cd docs
 %{_datadir}/dstat/*.py*
 
 %changelog
+* Mon Sep 19 2016 David Kaspar [Dee'Kej] <dkaspar@redhat.com> - 0.7.0-3
+- fix the error message for '--gpfs-ops --gpfs' options (#989779)
+- fix the invalid syntax when '--mysql5-conn' is used (#766806)
+
 * Tue Jan 20 2015 Jiri Popelka <jpopelka@redhat.com> - 0.7.0-2
 - enable to specify disks with path to device file or
   with symbolic link to the device file (#766443)

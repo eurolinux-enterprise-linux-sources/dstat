@@ -1,0 +1,34 @@
+From 23644c0ac60c3ce1c9827b6ebfd4c675fff922ed Mon Sep 17 00:00:00 2001
+From: "David Kaspar [Dee'Kej]" <dkaspar@redhat.com>
+Date: Mon, 19 Sep 2016 16:30:50 +0200
+Subject: [PATCH] fix the "(global name 'select' is not defined)" error message
+
+  Plus use subprocess.Popen() instead of deprecated os.popen3().
+---
+ dstat | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/dstat b/dstat
+index d8b0a52..f8aa3d6 100755
+--- a/dstat
++++ b/dstat
+@@ -1693,9 +1693,15 @@ def dclose(filename):
+ def dpopen(cmd):
+     "Open a pipe for reuse, if already opened, return pipes"
+     global pipes
++    import select, subprocess
+     if 'pipes' not in globals().keys(): pipes = {}
+     if cmd not in pipes.keys():
+-        pipes[cmd] = os.popen3(cmd, 't', 0)
++        p = subprocess.Popen(cmd, bufsize=0,
++                             stdin=subprocess.PIPE,
++                             stdout=subprocess.PIPE,
++                             stderr=subprocess.PIPE,
++                             close_fds=True)
++        pipes[cmd] = (p.stdin, p.stdout, p.stderr)
+     return pipes[cmd]
+ 
+ def readpipe(fileobj, tmout = 0.001):
+-- 
+2.7.4
+
