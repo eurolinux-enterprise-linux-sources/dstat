@@ -1,0 +1,23 @@
+diff -up dstat-0.7.2/docs/dstat.1.man dstat-0.7.2/docs/dstat.1
+--- dstat-0.7.2/docs/dstat.1.man	2012-09-03 14:27:43.000000000 +0200
++++ dstat-0.7.2/docs/dstat.1	2012-09-03 14:29:29.472736887 +0200
+@@ -90,7 +90,7 @@ enable system stats (interrupts, context
+ \-\-aio
+ enable aio stats (asynchronous I/O)
+ .TP
+-\-\-fs
++\-\-fs, \-\-filesystem
+ enable filesystem stats (open files, inodes)
+ .TP
+ \-\-ipc
+diff -up dstat-0.7.2/dstat.man dstat-0.7.2/dstat
+--- dstat-0.7.2/dstat.man	2012-09-03 14:27:43.000000000 +0200
++++ dstat-0.7.2/dstat	2012-09-03 14:29:54.683393579 +0200
+@@ -339,6 +339,7 @@ Dstat options:
+   --noheaders            disable repetitive headers
+   --noupdate             disable intermediate updates
+   --output file          write CSV output to file
++  --profile              show profiling statistics when exiting dstat
+ 
+ delay is the delay in seconds between each update (default: 1)
+ count is the number of updates to display before exiting (default: unlimited)

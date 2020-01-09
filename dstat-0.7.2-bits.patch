@@ -1,0 +1,199 @@
+diff -up dstat-0.7.2/docs/dstat.1.bits dstat-0.7.2/docs/dstat.1
+--- dstat-0.7.2/docs/dstat.1.bits	2010-06-15 00:26:19.000000000 +0200
++++ dstat-0.7.2/docs/dstat.1	2012-09-03 14:26:57.930801564 +0200
+@@ -137,6 +137,9 @@ expand \-C, \-D, \-I, \-N and \-S discov
+ \-v, \-\-vmstat
+ equals \-pmgdsc \-D total
+ .TP
++\-\-bits
++force bits for values expressed in bytes
++.TP
+ \-\-float
+ force float values on screen (mutual exclusive with
+ \fB\-\-integer\fR)
+diff -up dstat-0.7.2/dstat.bits dstat-0.7.2/dstat
+--- dstat-0.7.2/dstat.bits	2010-06-11 08:08:01.000000000 +0200
++++ dstat-0.7.2/dstat	2012-09-03 14:23:42.056447576 +0200
+@@ -72,6 +72,7 @@ pluginpath = [
+ class Options:
+     def __init__(self, args):
+         self.args = args
++        self.bits = False
+         self.blackonwhite = False
+         self.count = -1
+         self.cpulist = None
+@@ -112,7 +113,7 @@ class Options:
+ 
+         try:
+             opts, args = getopt.getopt(args, 'acdfghilmno:prstTvyC:D:I:M:N:S:V',
+-                ['all', 'all-plugins', 'bw', 'blackonwhite', 'debug',
++                ['all', 'all-plugins', 'bits', 'bw', 'blackonwhite', 'debug',
+                  'filesystem', 'float', 'full', 'help', 'integer',
+                  'list', 'mods', 'modules', 'nocolor', 'noheaders', 'noupdate',
+                  'output=', 'pidfile=', 'profile', 'version', 'vmstat'] + allplugins)
+@@ -175,6 +176,8 @@ class Options:
+                 plugins = {}.fromkeys(allplugins).keys()
+                 plugins.sort()
+                 self.plugins += plugins
++            elif opt in ['--bits']:
++                self.bits = True
+             elif opt in ['--bw', '--black-on-white']:
+                 self.blackonwhite = True
+             elif opt in ['--debug']:
+@@ -301,6 +304,7 @@ Dstat options:
+   -f, --full             automatically expand -C, -D, -I, -N and -S lists
+   -v, --vmstat           equals -pmgdsc -D total
+ 
++  --bits                 force bits for values expressed in bytes
+   --float                force float values on screen
+   --integer              force integer values on screen
+ 
+@@ -428,10 +432,10 @@ class dstat:
+         ret = theme['title']
+         if isinstance(self.name, types.StringType):
+             width = self.statwidth()
+-            return ret + self.name[0:width].center(width).replace(' ', '-') + theme['default']
++            return ret + self.name[0:width].center(width, char['space']).replace(' ', '-') + theme['default']
+         for i, name in enumerate(self.name):
+             width = self.colwidth()
+-            ret = ret + name[0:width].center(width).replace(' ', '-')
++            ret = ret + name[0:width].center(width, char['space']).replace(' ', '-')
+             if i + 1 != len(self.name):
+                 if op.color:
+                     ret = ret + theme['frame'] + char['dash'] + theme['title']
+@@ -443,13 +447,13 @@ class dstat:
+         ret = ''
+         if isinstance(self.name, types.StringType):
+             for i, nick in enumerate(self.nick):
+-                ret = ret + theme['subtitle'] + nick[0:self.width].center(self.width) + theme['default']
++                ret = ret + theme['subtitle'] + nick[0:self.width].center(self.width, char['space']) + theme['default']
+                 if i + 1 != len(self.nick): ret = ret + char['space']
+             return ret
+         else:
+             for i, name in enumerate(self.name):
+                 for j, nick in enumerate(self.nick):
+-                    ret = ret + theme['subtitle'] + nick[0:self.width].center(self.width) + theme['default']
++                    ret = ret + theme['subtitle'] + nick[0:self.width].center(self.width, char['space']) + theme['default']
+                     if j + 1 != len(self.nick): ret = ret + char['space']
+                 if i + 1 != len(self.name): ret = ret + theme['frame'] + char['colon']
+             return ret
+@@ -679,7 +683,7 @@ class dstat_cpu24(dstat):
+ class dstat_disk(dstat):
+     def __init__(self):
+         self.nick = ('read', 'writ')
+-        self.type = 'd'
++        self.type = 'b'
+         self.diskfilter = re.compile('^(dm-\d+|md\d+|[hsv]d[a-z]+\d+)$')
+         self.open('/proc/diskstats')
+         self.cols = 2
+@@ -745,7 +749,7 @@ class dstat_disk(dstat):
+ class dstat_disk24(dstat):
+     def __init__(self):
+         self.nick = ('read', 'writ')
+-        self.type = 'd'
++        self.type = 'b'
+         self.diskfilter = re.compile('(dm-\d+|md\d+|[hsv]d[a-z]+\d+)')
+         self.open('/proc/partitions')
+         if self.fd and not self.discover:
+@@ -810,7 +814,7 @@ class dstat_disk24(dstat):
+ class dstat_disk24old(dstat):
+     def __init__(self):
+         self.nick = ('read', 'writ')
+-        self.type = 'd'
++        self.type = 'b'
+         self.diskfilter = re.compile('(dm-\d+|md\d+|[hsv]d[a-z]+\d+)')
+         self.regexp = re.compile('^\((\d+),(\d+)\):\(\d+,\d+,(\d+),\d+,(\d+)\)$')
+         self.open('/proc/stat')
+@@ -1188,7 +1192,7 @@ class dstat_mem(dstat):
+ class dstat_net(dstat):
+     def __init__(self):
+         self.nick = ('recv', 'send')
+-        self.type = 'd'
++        self.type = 'b'
+         self.totalfilter = re.compile('^(lo|bond\d+|face|.+\.\d+)$')
+         self.open('/proc/net/dev')
+         self.cols = 2
+@@ -1599,6 +1603,7 @@ char = {
+     'space': ' ',
+     'dash': '-',
+     'plus': '+',
++    'underscore': '_',
+ }
+ 
+ def set_theme():
+@@ -1863,7 +1868,7 @@ def cprintlist(varlist, type, width, sca
+     ret = sep = ''
+     for var in varlist:
+         ret = ret + sep + cprint(var, type, width, scale)
+-        sep = ' '
++        sep = char['space']
+     return ret
+ 
+ def cprint(var, type = 'f', width = 4, scale = 1000):
+@@ -1882,14 +1887,18 @@ def cprint(var, type = 'f', width = 4, s
+     ### If this is a negative value, return a dash
+     if var < 0:
+         if unit:
+-            return theme['error'] + '-'.rjust(width) + ' ' + theme['default']
++            return theme['error'] + '-'.rjust(width, char['space']) + char['space'] + theme['default']
+         else:
+-            return theme['error'] + '-'.rjust(width) + theme['default']
++            return theme['error'] + '-'.rjust(width, char['space']) + theme['default']
+ 
+-    if base == 1024:
+-        units = ('B', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
++    if base != 1024:
++        units = (char['space'], 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
++    elif op.bits and type in ('b', ):
++        units = ('b', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
++        base = scale = 1000
++        var = var * 8.0
+     else:
+-        units = (' ', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
++        units = ('B', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+ 
+     if step == op.delay:
+         colors = theme['colors_lo']
+@@ -1901,11 +1910,11 @@ def cprint(var, type = 'f', width = 4, s
+         cunit = theme['unit_hi']
+ 
+     ### Convert value to string given base and field-length
+-    if op.integer and type in ('d', 'p', 'f'):
++    if op.integer and type in ('b', 'd', 'p', 'f'):
+         ret, c = dchg(var, width, base)
+-    elif op.float and type in ('d', 'p', 'f'):
++    elif op.float and type in ('b', 'd', 'p', 'f'):
+         ret, c = fchg(var, width, base)
+-    elif type in ('d', 'p'):
++    elif type in ('b', 'd', 'p'):
+         ret, c = dchg(var, width, base)
+     elif type in ('f'):
+         ret, c = fchg(var, width, base)
+@@ -1925,23 +1934,23 @@ def cprint(var, type = 'f', width = 4, s
+         color = colors[int(var/scale)%len(colors)]
+     elif type in ('p'):
+         color = colors[int(round(var)/scale)%len(colors)]
+-    elif type in ('d', 'f'):
++    elif type in ('b', 'd', 'f'):
+         color = colors[c%len(colors)]
+     else:
+         color = ctext
+ 
+     ### Justify value to left if string
+     if type in ('s',):
+-        ret = color + ret.ljust(width)
++        ret = color + ret.ljust(width, char['space'])
+     else:
+-        ret = color + ret.rjust(width)
++        ret = color + ret.rjust(width, char['space'])
+ 
+     ### Add unit to output
+     if unit:
+         if c != -1 and round(var) != 0:
+             ret += cunit + units[c]
+         else:
+-            ret += ' '
++            ret += char['space']
+ 
+     return ret
+ 
